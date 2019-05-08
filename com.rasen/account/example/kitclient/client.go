@@ -1,116 +1,52 @@
-package kitclient
+package main
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/go-kit/kit/endpoint"
-	httptransport "github.com/go-kit/kit/transport/http"
-	"log"
-	"net/http"
-	"strings"
+	"os"
+	"path/filepath"
+	"time"
+
+	"com.rasen/protobuf/pbf/serverapi"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	"google.golang.org/grpc"
 )
 
-type StringServer interface {
-	ShowString(s string) (string, error)
-	ValidString(s string) (string, error)
-}
-
-type stringServer struct{}
-
-func (svr *stringServer) ShowString(s string) (string, error) {
-	if ok := strings.Contains(s, "error"); ok {
-		return "", errors.New("content contains error string")
-	}
-	ctx := fmt.Sprintf("call ShowString method. show content: %s", s)
-	fmt.Println(ctx)
-	return ctx, nil
-}
-
-func (svr *stringServer) ValidString(s string) (string, error) {
-	if ok := strings.ContainsRune(s, rune('错')); ok {
-		return "", errors.New("content contains 错 string")
-	}
-	ctx := fmt.Sprintf("call ValidString method. show content: %s", s)
-	fmt.Println(ctx)
-	return ctx, nil
-}
-
-type showStringRequest struct {
-	S string `json:"s"`
-}
-
-type showStringResponst struct {
-	S   string `json:"s"`
-	Err string `json:"err"`
-}
-
-type validStringRequest struct {
-	S string `json:"s"`
-}
-
-type validStringResponst struct {
-	S   string `json:"s"`
-	Err string `json:"err"`
-}
-
-func makeShowString(svr stringServer) endpoint.Endpoint {
-	return func(_ context.Context, req interface{}) (interface{}, error) {
-		v := req.(showStringRequest)
-		s, err := svr.ShowString(v.S)
-		if err != nil {
-			return showStringResponst{"", err.Error()}, err
-		}
-		return showStringResponst{s, nil}, nil
-	}
-}
-
-func makeValidString(svr stringServer) endpoint.Endpoint {
-	return func(_ context.Context, req interface{}) (interface{}, error) {
-		v := req.(validStringRequest)
-		s, err := svr.ShowString(v.S)
-		if err != nil {
-			return validStringResponst{"", err.Error()}, err
-		}
-		return validStringResponst{s, nil}, nil
-	}
-}
-
 func main() {
-	svr := stringServer{}
-
-	showStringHandler := httptransport.NewClient(
-		makeShowString(svr),
-		decodeShowString,
-		encodeResponst)
-
-	validStringHandler := httptransport.NewClient(
-		makeValidString(svr),
-		decodeValidString,
-		encodeResponst)
-
-	http.Handle("/uppercase", showStringHandler)
-	http.Handle("/count", validStringHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func decodeShowString(_ context.Context, r *http.Request) (interface{}, error) {
-	var request showStringResponst
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, err
+	var opts []grpc.DialOption
+	opts = append(opts,grpc.WithInsecure())
+	conn,err := grpc.Dial("127.0.0.1:5000",opts...)
+	if err != nil{
+		fmt.Println("cn:",err)
+		level.Error(logger).Log("err: ",err)
 	}
-	return request, nil
-}
-
-func decodeValidString(_ context.Context, r *http.Request) (interface{}, error) {
-	var request validStringResponst
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, err
+	defer conn.Close()
+	client := stringsvr.NewStringServerClient(conn)
+	resp,err := client.ShowString(context.Background(),&stringsvr.StringMsgReq{S:"show string client ctx error"})
+	if err != nil{
+		level.Error(logger).Log(err)
 	}
-	return request, nil
+	level.Debug(logger).Log("resp:",resp)
+	fmt.Println("resp:",resp," err:",err)
 }
 
-func encodeResponst(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(w).Encode(response)
+var logger log.Logger
+
+func init(){
+	os.Mkdir("logs",os.ModePerm)
+	logPath := filepath.Join(".","logs","log.txt")
+	fd,err := os.OpenFile(logPath,os.O_APPEND|os.O_CREATE|os.O_WRONLY,0666)
+	defer fd.Close()
+	if err !=nil{
+		fmt.Fprint(os.Stderr,"open or create log file fail. err:",err)
+	}
+	logger = log.NewLogfmtLogger(fd)
+	baseTime := time.Now()
+	mockTime := func() time.Time {
+		baseTime = baseTime.Add(time.Second)
+		return baseTime
+	}
+
+	logger = log.With(logger, "time", log.Timestamp(mockTime), "caller", log.DefaultCaller)
 }

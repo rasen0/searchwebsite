@@ -1,0 +1,21 @@
+syntax="proto3";
+
+package stringsvr;
+
+//import "msgfiles/msg.proto";
+
+option optimize_for=LITE_RUNTIME;
+
+message StringMsgResp{
+    string s=1;
+    string err=2;
+}
+
+message StringMsgReq{
+    string s=1;
+}
+
+service StringServer{
+    rpc ShowString(StringMsgReq) returns (StringMsgResp);
+    rpc ValidString(StringMsgReq) returns (StringMsgResp);
+}

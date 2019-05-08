@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package msg;
+
+option go_package="msg";
+option java_package="rs.msg";
+option optimize_for=LITE_RUNTIME;
+
+message StringMsgResp{
+    string s=1;
+    string err=2;
+}
+
+message StringMsgReq{
+    string s=1;
+}

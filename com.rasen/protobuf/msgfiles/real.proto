@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package robpbf;
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "njrobot.robpbf";
+option go_package = "robpbf";
+
+//用于服务器主动向客户端下发指令更新通知
+message MissionInform {
+    int64 update_stamp = 1;
+    int32 mission_id = 2;
+}
