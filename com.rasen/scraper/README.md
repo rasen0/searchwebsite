@@ -1,0 +1,2 @@
+mongodb数据库自行网络下载，配置文件可以使用init文件夹下的。直接把init下文件复制到MongoDB根目录，运行init.bat初始化，在运行 
+start即可。

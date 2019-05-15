@@ -1,0 +1,1 @@
+ .\bin\mongod.exe --dbpath D:\search\mongodb\data\db\
