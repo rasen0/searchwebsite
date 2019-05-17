@@ -43,10 +43,10 @@ func main(){
 
 	// 退出
 	exit := make(chan os.Signal)
-	signal.Notify(exit,os.Kill,os.Interrupt,syscall.SIGTERM)
+	signal.Notify(exit,os.Kill,os.Interrupt,syscall.SIGTERM,syscall.SIGQUIT)
 	for c := range exit{
 		switch c {
-		case os.Kill,os.Interrupt,syscall.SIGKILL,syscall.SIGTERM,syscall.SIGQUIT:
+		case os.Kill,os.Interrupt,syscall.SIGTERM,syscall.SIGQUIT:
 			logger.Info("exit")
 			os.Exit(0)
 		default:

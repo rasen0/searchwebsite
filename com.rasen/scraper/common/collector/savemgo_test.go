@@ -2,7 +2,6 @@ package collector
 
 import (
 	"com.rasen/scraper/database"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"os"
 	"testing"
@@ -17,8 +16,4 @@ func TestMain(m *testing.M){
 }
 
 func TestSaveMgoD(t *testing.T) {
-	d:=bson.D{bson.E{"title","lin"},
-		bson.E{"href","www.dgd.com"}}
-
-	database.InsertOneMgo()
 }

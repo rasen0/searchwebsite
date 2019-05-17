@@ -1,1 +1,4 @@
 
+time="16-05-2019 11:52:25" level=error msg="open cfg file fail" err="open C:\\Users\\SHENRU~1.TES\\AppData\\Local\\Temp\\go-build976310254\\command-line-arguments\\_obj\\exe\\config.conf: The system cannot find the file specified."
+time="16-05-2019 11:52:49" level=error msg="open cfg file fail" err="open C:\\Users\\SHENRU~1.TES\\AppData\\Local\\Temp\\go-build134023854\\command-line-arguments\\_obj\\exe\\config.conf: The system cannot find the file specified."
+time="16-05-2019 16:47:20" level=error msg="open cfg file fail" err="open C:\\Users\\SHENRU~1.TES\\AppData\\Local\\Temp\\go-build916326670\\command-line-arguments\\_obj\\exe\\config.conf: The system cannot find the file specified."
