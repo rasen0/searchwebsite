@@ -1,5 +1,0 @@
-package nsq
-
-func NsqRecvMsg(){
-
-}
